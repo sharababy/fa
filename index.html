@@ -1,0 +1,93 @@
+<html>
+	<head>
+		<title>Attendance System - IIITDM</title>
+
+		<style type="text/css">
+			body{
+				margin:0;
+				background: #f0f0f0;
+			}
+
+			.header{
+				height:80px;
+				//background: #dadada;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				
+			}
+			.header-text{
+				//border:1px solid #000;
+				color:#3A3A3A;
+				font-size: 36px;
+				font-family: sans-serif;
+				padding-top:20px;
+			}
+
+			.login-box{
+				height:300px;
+				width:400px;
+				background: #fff;
+				position: absolute;
+				top:200px;
+				left:70%;
+				margin-left:-200px;
+				box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.form-item{
+				margin:10px;
+				border:none;
+				border-bottom:1px solid #aaa;
+				width:200px;
+				height:20px;
+				font-size: 15px;
+			}
+
+			.login-button{
+				margin-top:40px;
+				border:1px solid #aaa;
+				width:200px;
+				height:30px;
+				font-size: 17px;	
+			}
+
+			input::placeholder{
+				text-align:center;
+			}
+
+			img{
+				height:80%;
+				width:auto;
+				opacity: 0.8;
+			}
+
+		</style>
+
+	</head>
+
+	<body>
+
+		<div class="header">
+
+			<div class="header-text">IIITDM Attendance System</div>
+
+		</div>
+
+		<div>
+			<img src="iiitdm.png">
+		</div>
+
+		<form action="/login" method="POST" class="login-box">
+		
+				<input class="form-item" type="text" name="username" placeholder="Faculty Username" />
+				<input class="form-item" type="text" name="password" placeholder="Faculty Password" />
+
+				<button type="submit" class="login-button" >Login</button>
+		</form>
+	</body>
+</html>

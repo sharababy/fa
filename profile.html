@@ -1,0 +1,125 @@
+<html>
+	<head>
+		<title>Attendance System - IIITDM</title>
+
+		<style type="text/css">
+			body{
+				margin:0;
+				background: #f0f0f0;
+			}
+
+			.header{
+				height:80px;
+				//background: #dadada;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;				
+			}
+			.header-text{
+				//border:1px solid #000;
+				color:#3A3A3A;
+				font-size: 36px;
+				font-family: sans-serif;
+				padding-top:20px;
+			}
+
+			.faculty-box{
+				display:flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.faculty-profile{
+				//margin:50px;
+			}
+
+			.faculty-name{
+				margin-top:25px;
+				margin-bottom:10px;
+				text-align: center;
+				font-size:20px;
+				font-family: sans-serif;
+				//border:1px solid #000;
+			}
+
+			.faculty-post{
+				text-align: center;
+			}
+
+			.faculty-img{
+				width:150px;
+				height:150px;
+			}
+
+			.centertext{
+				text-align: center;
+			}
+
+			.faculty-courses{
+				display: inline-flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.course-link{
+				font-family: sans-serif;
+				font-size:18px;
+				margin:10px;
+				padding:10px;
+				color:#fff;
+				box-shadow: 0 1px 1px rgba(0,0,0,0.19), 0 2px 2px rgba(0,0,0,0.23);
+				//border:1px solid #aaa;
+				border-radius:5px;
+				background:#51A3A3;
+				text-decoration: none;
+			}
+
+		</style>
+
+	</head>
+
+	<body>
+
+		<div class="header">
+
+			<div class="header-text">IIITDM Attendance System</div>
+
+		</div>
+		<h1 class="centertext">Faculty Portal</h1>
+		<hr/>
+
+		<div class="faculty-box">
+			<div class="faculty-profile">
+						
+				<img class="faculty-img" src= "/img/fac/{{username}}.jpeg" />
+					
+				<div class="faculty-name">
+					{{name}}
+				</div>
+
+				<div class="faculty-post">
+					{{post}}
+				</div>
+
+			</div>
+			
+			<h2>
+				<br/>
+				Check Attendance for:
+			</h2>
+			
+			<div class="faculty-courses">
+				{{#courses}}
+					<a href="/course/{{cno_f}}" class="course-link">
+						{{cno_n}}
+					</a>
+				{{/courses}}
+				
+			</div>
+		</div>
+
+
+	</body>
+</html>
