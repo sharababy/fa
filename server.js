@@ -2,8 +2,8 @@ var http = require("http")
 var fs = require("fs")
 var mustache = require('mustache');
 var qs = require('querystring');
-
-
+const crypto = require('crypto');
+const title = 'fingerprintattendance';
 var creds = require("./creds.js")
 
 var port = 3000;
@@ -38,9 +38,14 @@ var server = http.createServer(function(req,res){
 					return console.log(err);
 				}
 					
-				var s_index = req.url.split("/")[2];
-				var sessionid = req.url.split("/")[parseInt(s_index)+3]
-				console.log(s_index,sessionid)
+				// var s_index = req.url.split("/")[2];
+				// var sessionid = req.url.split("/")[parseInt(s_index)+3]
+				// console.log(s_index,sessionid)
+				var cookies = parseCookies(req);
+				var sessionid = cookies.APIv;
+
+				console.log(cookies);
+
 				var faculty = null;
 
 				creds.forEach(function(cred){
@@ -52,13 +57,15 @@ var server = http.createServer(function(req,res){
 				})
 				sessionid = 0;
 
-				if (faculty !== null) {
-					var html = mustache.to_html(data, faculty);
-					res.end(html)		
+				var html = 'Incorrect Userid or Password! ';
+
+
+
+				if (faculty !== null && faculty.ipaddr == req.connection.remoteAddress) {
+					html = mustache.to_html(data, faculty);
 				}
-				else{
-					res.end('Incorrect Userid or Password! ')
-				}	
+
+				res.end(html);
 
 			})
 			
@@ -119,20 +126,20 @@ var server = http.createServer(function(req,res){
 	            	if (cred.username == post.username
 	            		&& cred.password == post.password) {
 
-	            		sessionid_t = []
-	            		sessionid_t.push(parseInt(Math.random()*1000000) )
-	            		sessionid_t.push(parseInt(Math.random()*1000000) )
-	            		sessionid_t.push(parseInt(Math.random()*1000000) )
-	            		sessionid_t.push(parseInt(Math.random()*1000000) )
-
-	            		var session_no = parseInt(Math.random()*1000000)%4;
-
-	            		cred.sessionid = sessionid_t[session_no];
+	            		
+	            		var sessionid_t = crypto.createHmac('sha256', title).update(parseInt(Math.random()*100000).toString()).digest('hex');
+	            		var salt1 = crypto.createHmac('sha256', title).update(parseInt(Math.random()*100000).toString()).digest('hex');
+	            		var salt2 = crypto.createHmac('sha256', title).update(parseInt(Math.random()*100000).toString()).digest('hex');
+	   
+	            		cred.sessionid = sessionid_t;
 	            		cred.logged = 1;
+	            		cred.ipaddr = req.connection.remoteAddress;
 
 	            		//console.log(creds,"Logged In");
 
-	            		res.writeHead(302, { "Location": "http://" + req.headers['host'] + '/profile/'+session_no+"/"+sessionid_t[0]+"/"+sessionid_t[1]+"/"+sessionid_t[2]+"/"+sessionid_t[3] });
+	            		res.writeHead(302, 
+	            			{ 	'Set-Cookie': ['APIv='+sessionid_t,"browserRev="+salt1,"HSID="+salt2],
+	            				"Location": "http://" + req.headers['host'] + '/profile' });
 
 	            	}
 	            })
@@ -143,3 +150,19 @@ var server = http.createServer(function(req,res){
 		}
 	}
 }).listen(port,function(){ console.log("Listening at ",port)})
+
+
+
+
+
+function parseCookies (request) {
+    var list = {},
+        rc = request.headers.cookie;
+
+    rc && rc.split(';').forEach(function( cookie ) {
+        var parts = cookie.split('=');
+        list[parts.shift().trim()] = decodeURI(parts.join('='));
+    });
+
+    return list;
+}

@@ -4,9 +4,12 @@ var creds = [
 	{
 		name:"Dr. Naveen Kumar",
 		username:"naveen",
+
 		password:"123",
 		logged:0,
 		sessionid:0,
+		ipaddr:"0.0.0.0",
+
 		post:"Associate Professor",
 		courses:[
 			{name:"Product Design Practice",cno:"COM123T"},
@@ -22,9 +25,12 @@ var creds = [
 	{
 		name:"Tapas Sil",
 		username:"tapas",
+		
 		password:"123",
 		logged:0,
 		sessionid:0,
+		ipaddr:"0.0.0.0",
+
 		post:"Associate Professor",
 		courses:[
 			{name:"Product Design Practice",cno:"COM123T"},
@@ -40,9 +46,12 @@ var creds = [
 	{
 		name:"Sadagopan",
 		username:"sadagopan",
+		
 		password:"123",
 		logged:0,
 		sessionid:0,
+		ipaddr:"0.0.0.0",
+
 		post:"Assistant Professor",
 		courses:[
 			{name:"Product Design Practice",cno:"COM123T"},
@@ -58,9 +67,12 @@ var creds = [
 	{
 		name:"B Sivaselvan",
 		username:"bss",
+		
 		password:"123",
 		logged:0,
 		sessionid:0,
+		ipaddr:"0.0.0.0",
+		
 		post:"Assistant Professor",
 		courses:[
 			{name:"Operating Systems",cno:"COM123T"},
