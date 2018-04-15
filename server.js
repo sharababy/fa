@@ -125,13 +125,22 @@ var server = http.createServer(function(req,res){
 									a.studentid=s.id and 
 									a.courseid=c.id and 
 									c.cno = ? 
-									group by s.name;`
+									group by s.name
+									order by s.roll;`
 
 						db.all(query,req.url.split("/")[2],
 							function(err,rows){
 								console.log(rows)
 								
-								html = mustache.to_html(data,{classname:rows[0].classname,d:rows});	
+								html = mustache.to_html(data,
+													{classname:rows[0].classname,
+													cc:rows[0].cc,
+													d:rows,
+													apercent: function(text){ 
+														at = parseInt((parseInt(this.attendance)/parseInt(this.cc))*10000)/100 
+														return at
+													}
+												});	
 								if(rows === []){
 									html = "No such course"
 								}
