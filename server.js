@@ -260,17 +260,25 @@ var server = http.createServer(function(req,res){
 			req.on('end', function () {
 	        	var post = qs.parse(body);
 
-				var year = body.year;
-				var data = body.data;
+				var year = post.year;
+				var dstr = post.data;
 				console.log(post)
 
+
+				dstr = dstr.split("(").join("[")
+				dstr = dstr.split(")").join("]")
+
+				var data = JSON.parse(dstr);
+
+				console.log(data)
 				var db = new sqlite3.Database('./attendance.db');
 
 				db.serialize(function(){
 
+					
 					var stmt = db.prepare("INSERT INTO attendance"+year+" VALUES (?,?,?,?,?,1)");
-
-					for (var i = 0; i < data.length; i++) {
+					
+					data.forEach(function(d,i){
 						
 						query = `select 
 									* from attendance3 
@@ -281,35 +289,40 @@ var server = http.createServer(function(req,res){
 									month = ? and
 									year = ?;`	
 
-						db.all(query,[data[i].studentid,
-									data[i].courseid,
-									data[i].day,
-									data[i].month,
-									data[i].year],
+						db.all(query,[d[0],
+									d[1],
+									d[2],
+									d[3],
+									d[4]],
 								function(err,rows){
 
 
 							if(rows.length == 0){
-
+								
+								console.log("HIT ")
 								stmt.run(
-									data[i].studentid,
-									data[i].courseid,
-									data[i].day,
-									data[i].month,
-									data[i].year,
-									data[i].syncstatus
+									d[0],
+									d[1],
+									d[2],
+									d[3],
+									d[4]									
 								);	
+								
+
 							}
 						})		
-
-
 						
-					}
+						if (i == data.length) {
+							stmt.finalize();
+							db.close();
+						}
 
-					stmt.finalize();
+					});
+
+					
 
 				})
-				db.close();
+				
 
 				res.end();
 		            
