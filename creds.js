@@ -72,15 +72,9 @@ var creds = [
 		logged:0,
 		sessionid:0,
 		ipaddr:"0.0.0.0",
-		
+
 		post:"Assistant Professor",
 		courses:[
-			{name:"Operating Systems",cno:"COM123T"},
-			{name:"Database Management Systems", cno:"COM101T"},
-			{name:"Operating Systems",cno:"COM123T"},
-			{name:"Database Management Systems", cno:"COM101T"},
-			{name:"Operating Systems",cno:"COM123T"},
-			{name:"Database Management Systems", cno:"COM101T"},
 			{name:"Operating Systems",cno:"COM123T"},
 			{name:"Database Management Systems", cno:"COM101T"},
 		],

@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "browser-cookies": "^1.2.0",
-    "mustache": "^2.3.0"
+    "mustache": "^2.3.0",
+    "sqlite3": "^4.0.0"
   }
 }

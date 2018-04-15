@@ -5,13 +5,12 @@ var qs = require('querystring');
 const crypto = require('crypto');
 const title = 'fingerprintattendance';
 var creds = require("./creds.js")
+var sqlite3 = require('sqlite3').verbose();
 
 var port = 3000;
 
 
-
 var server = http.createServer(function(req,res){
-
 
 	if (req.method == "GET") {
 
@@ -29,9 +28,9 @@ var server = http.createServer(function(req,res){
 				res.end()				
 			})
 		}
-		if (req.url.split("/")[1] === "profile") {
+		else if (req.url.split("/")[1] === "profile") {
 
-			console.log(req.url.split("/"));
+			console.log("Profile Page Accessed ",req.url);
 
 			fs.readFile('./profile.html', 'utf8', function (err,data) {
 				if (err) {
@@ -44,7 +43,7 @@ var server = http.createServer(function(req,res){
 				var cookies = parseCookies(req);
 				var sessionid = cookies.APIv;
 
-				console.log(cookies);
+				//console.log(cookies);
 
 				var faculty = null;
 
@@ -57,15 +56,103 @@ var server = http.createServer(function(req,res){
 				})
 				sessionid = 0;
 
-				var html = 'Incorrect Userid or Password! ';
+				var html = 'Please Login Again - Session Expired';
 
-
-
-				if (faculty !== null && faculty.ipaddr == req.connection.remoteAddress) {
+				if (faculty !== null && 
+					faculty.ipaddr == req.connection.remoteAddress &&
+					faculty.logged == 1) {
 					html = mustache.to_html(data, faculty);
 				}
 
 				res.end(html);
+
+			})
+			
+		}
+
+		else if (	req.url.split("/")[1] === "course" &&
+					req.url.split("/").length === 3
+				) {
+
+			console.log("Course Page Accessed ",req.url);
+
+			fs.readFile('./course.html', 'utf8', function (err,data) {
+				if (err) {
+					return console.log(err);
+				}
+					
+				// var s_index = req.url.split("/")[2];
+				// var sessionid = req.url.split("/")[parseInt(s_index)+3]
+				// console.log(s_index,sessionid)
+				var cookies = parseCookies(req);
+				var sessionid = cookies.APIv;
+
+				////console.log(cookies);
+
+				var faculty = null;
+				var course = [],atten = [];
+
+				creds.forEach(function(cred){
+
+					if (cred.sessionid == sessionid) {
+						faculty = cred						
+					}
+
+				})
+				sessionid = 0;
+
+				var html = 'Please Login Again - Session Expired';
+
+				if (faculty !== null && 
+					faculty.ipaddr == req.connection.remoteAddress &&
+					faculty.logged == 1) {
+					// get attendance data from sqlite
+					var db = new sqlite3.Database('./attendance.db');
+
+					db.serialize(function() {
+						
+						query = `select 
+									count(a.studentid) as attendance,
+									s.roll as roll, 
+									s.name as name,
+									c.name as classname,
+									c.classcount as cc
+								from 
+									attendance3 as a,
+									student as s,
+									class as c  
+								where 
+									a.studentid=s.id and 
+									a.courseid=c.id and 
+									c.cno = ? 
+									group by s.name;`
+
+						db.all(query,req.url.split("/")[2],
+							function(err,rows){
+								console.log(rows)
+								
+								html = mustache.to_html(data,{classname:rows[0].classname,d:rows});	
+								if(rows === []){
+									html = "No such course"
+								}
+								res.end(html);
+								
+							})
+
+						
+							
+
+							
+						
+					});
+
+					db.close();
+
+					
+				}
+				else{
+					res.end("Please login again !");
+				}				
 
 			})
 			
@@ -88,16 +175,16 @@ var server = http.createServer(function(req,res){
 					 	res.writeHead(200, {'Content-Type': 'image/'+extention });
 						res.end(img, 'binary');	
 					} catch (err) {
+						res.writeHead(404);
 						res.end("404 - resource not found");
 						//throw err;
 					  // Here you get the error when the file was not found,
 					  // but you also get any other error
-					}
-					
-						
-					
-
-					
+					}					
+			}
+			else{
+				res.writeHead(404);
+				res.end("404 - Page not found !")
 			}
 		}		
 	}
@@ -157,7 +244,7 @@ var server = http.createServer(function(req,res){
 
 function parseCookies (request) {
     var list = {},
-        rc = request.headers.cookie;
+    rc = request.headers.cookie;
 
     rc && rc.split(';').forEach(function( cookie ) {
         var parts = cookie.split('=');
