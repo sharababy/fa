@@ -130,7 +130,7 @@ var server = http.createServer(function(req,res){
 
 						db.all(query,req.url.split("/")[2],
 							function(err,rows){
-								console.log(rows)
+								// console.log(rows)
 								
 								html = mustache.to_html(data,
 													{classname:rows[0].classname,
@@ -243,6 +243,77 @@ var server = http.createServer(function(req,res){
 	            res.end("Incorrect Userid or password !");
 	        });
 			
+		}
+		else if (req.url == '/newAttendanceFile') {
+
+			var body = '';
+
+        	req.on('data', function (data) {
+	            body += data;
+
+	            // Too much POST data, kill the connection!
+	            // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
+	            if (body.length > 1e9)
+	                req.connection.destroy();
+	        });
+
+			req.on('end', function () {
+	        	var post = qs.parse(body);
+
+				var year = body.year;
+				var data = body.data;
+				console.log(post)
+
+				var db = new sqlite3.Database('./attendance.db');
+
+				db.serialize(function(){
+
+					var stmt = db.prepare("INSERT INTO attendance"+year+" VALUES (?,?,?,?,?,1)");
+
+					for (var i = 0; i < data.length; i++) {
+						
+						query = `select 
+									* from attendance3 
+								where 
+									studentid = ? and
+									courseid = ? and
+									day = ? and
+									month = ? and
+									year = ?;`	
+
+						db.all(query,[data[i].studentid,
+									data[i].courseid,
+									data[i].day,
+									data[i].month,
+									data[i].year],
+								function(err,rows){
+
+
+							if(rows.length == 0){
+
+								stmt.run(
+									data[i].studentid,
+									data[i].courseid,
+									data[i].day,
+									data[i].month,
+									data[i].year,
+									data[i].syncstatus
+								);	
+							}
+						})		
+
+
+						
+					}
+
+					stmt.finalize();
+
+				})
+				db.close();
+
+				res.end();
+		            
+	        });
 		}
 	}
 }).listen(port,function(){ console.log("Listening at ",port)})
