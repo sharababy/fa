@@ -216,7 +216,7 @@ var server = http.createServer(function(req,res){
 			req.on('end', function () {
 	            var post = qs.parse(body);
 
-	            console.log(post)
+	            //console.log(post)
 
 	            creds.forEach(function(cred){
 	            	if (cred.username == post.username
@@ -262,15 +262,39 @@ var server = http.createServer(function(req,res){
 
 				var year = post.year;
 				var dstr = post.data;
-				console.log(post)
+				var cstr = post.courses;
+				var fstr = post.faculty;
+				var sstr = post.students;
+				//console.log(post)
 
 
 				dstr = dstr.split("(").join("[")
 				dstr = dstr.split(")").join("]")
 
-				var data = JSON.parse(dstr);
+				cstr = cstr.split("(").join("[")
+				cstr = cstr.split(")").join("]")
+				cstr = cstr.split("u'").join("'")
+				cstr = cstr.split(`'`).join(`"`)
+
+				fstr = fstr.split("(").join("[")
+				fstr = fstr.split(")").join("]")
+				fstr = fstr.split("u'").join("'")
+				fstr = fstr.split(`'`).join(`"`)
+
+				sstr = sstr.split("(").join("[")
+				sstr = sstr.split(")").join("]")
+				sstr = sstr.split("u'").join("'")
+				sstr = sstr.split(`'`).join(`"`)
+
+				var data 	 = JSON.parse(dstr);
+				var courses  = JSON.parse(cstr);
+				var faculty  = JSON.parse(fstr);
+				var students = JSON.parse(sstr);
 
 				console.log(data)
+				console.log(courses)
+				console.log(faculty)
+				console.log(students)
 				var db = new sqlite3.Database('./attendance.db');
 
 				db.serialize(function(){
