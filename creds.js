@@ -33,8 +33,10 @@ var creds = [
 
 		post:"Associate Professor",
 		courses:[
-			{name:"Product Design Practice",cno:"COM123T"},
-			{name:"Engineering Physics", cno:"COM101T"}
+			{name:"Product Design Practice",cno:"DES310T"},
+			{name:"Engineering Physics", cno:"COM101T"},
+			{name:"Test Course 1", cno:"COM111T"},
+			{name:"Test Course 2", cno:"123"}
 		],
 		cno_f: function(){
 			return this.cno

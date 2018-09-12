@@ -130,7 +130,7 @@ var server = http.createServer(function(req,res){
 
 						db.all(query,req.url.split("/")[2],
 							function(err,rows){
-								// console.log(rows)
+								console.log(rows)
 								
 								html = mustache.to_html(data,
 													{classname:rows[0].classname,
@@ -291,21 +291,24 @@ var server = http.createServer(function(req,res){
 				var faculty  = JSON.parse(fstr);
 				var students = JSON.parse(sstr);
 
-				console.log(data)
-				console.log(courses)
-				console.log(faculty)
-				console.log(students)
+				// console.log(data)
+				// console.log(courses)
+				// console.log(faculty)
+				// console.log(students)
 				var db = new sqlite3.Database('./attendance.db');
 
 				db.serialize(function(){
 
-					
-					var stmt = db.prepare("INSERT INTO attendance"+year+" VALUES (?,?,?,?,?,1)");
-					
+					var stmt = db.prepare(`INSERT INTO attendance`+year+` VALUES(:studentid,:courseid,:day,:month,:year,:syncstatus)`);
+						
+					// stmt.run();
+
+					console.log(data[27])
+
 					data.forEach(function(d,i){
 						
 						query = `select 
-									* from attendance3 
+									* from 'attendance3'
 								where 
 									studentid = ? and
 									courseid = ? and
@@ -313,37 +316,110 @@ var server = http.createServer(function(req,res){
 									month = ? and
 									year = ?;`	
 
-						db.all(query,[d[0],
-									d[1],
-									d[2],
-									d[3],
-									d[4]],
+						db.all(query,[d[0],d[1],d[2],d[3],d[4]],
+							function(err,rows){
+								if (err) {console.log(err)}
+							
+								if(rows.length == 0){
+									var placeholders = {
+									    $studentid:d[0],
+									    $courseid:d[1],
+									    $day:d[2],
+									    $month:d[3],
+									    $year:d[4],
+									    $syncstatus:d[5]
+									};
+									console.log("HIT ")
+									console.log(d)
+
+									var q = `INSERT INTO attendance`+year+`(studentid,courseid,day,month,year,syncstatus) VALUES(?,?,?,?,?,?)`
+									db.run(q,	d);	
+
+								}
+							})
+						
+						if (i == data.length-1) {
+							stmt.finalize();
+						}
+
+					});	
+
+					stmt = db.prepare("INSERT INTO 'faculty' (name,sha) VALUES (?,?)");					
+					faculty.forEach(function(d,i){
+						
+						query = `select 
+									* from faculty 
+								where 
+									id = ?;`	
+
+						db.all(query,[d[0]],
 								function(err,rows){
-
-
+									if (err) {console.log(err)}
 							if(rows.length == 0){
 								
 								console.log("HIT ")
-								stmt.run(
-									d[0],
-									d[1],
-									d[2],
-									d[3],
-									d[4]									
-								);	
-								
+								stmt.run(d[1],d[2]);	
 
 							}
 						})		
 						
-						if (i == data.length) {
+						if (i == faculty.length) {
+							stmt.finalize();
+						}
+
+					});
+
+					stmt = db.prepare("INSERT INTO 'class' (cno,classcount,name,facultyid) VALUES (?,?,?,?)");					
+					courses.forEach(function(d,i){
+						
+						query = `select 
+									* from class 
+								where 
+									id = ?;`	
+
+						db.all(query,[d[0]],
+								function(err,rows){
+									if (err) {console.log(err)}
+							if(rows.length == 0){
+								
+								console.log("HIT ")
+								stmt.run(d[1],d[2],d[3],d[4]);	
+
+							}
+						})		
+						
+						if (i == courses.length) {
+							stmt.finalize();
+							// db.close();
+						}
+
+					});
+
+					stmt = db.prepare(`INSERT INTO 'student' (sha,name,roll) VALUES (:sha,:name,:roll)`);					
+					students.forEach(function(d,i){
+						
+						query = `select 
+									* from student 
+								where 
+									id = ?;`	
+
+						db.all(query,[d[0]],
+								function(err,rows){
+									if (err) {console.log(err)}
+							if(rows.length == 0){
+								
+								console.log("HIT ")
+								stmt.run(d[1],d[2],d[3]);	
+
+							}
+						})		
+						
+						if (i == students.length) {
 							stmt.finalize();
 							db.close();
 						}
 
 					});
-
-					
 
 				})
 				
